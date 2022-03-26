@@ -31,6 +31,7 @@ type UniversalOptions struct {
 	MaxRetries      int
 	MinRetryBackoff time.Duration
 	MaxRetryBackoff time.Duration
+	ShouldRetry     ShouldRetryFunc
 
 	DialTimeout  time.Duration
 	ReadTimeout  time.Duration
@@ -83,6 +84,7 @@ func (o *UniversalOptions) Cluster() *ClusterOptions {
 		MaxRetries:      o.MaxRetries,
 		MinRetryBackoff: o.MinRetryBackoff,
 		MaxRetryBackoff: o.MaxRetryBackoff,
+		ShouldRetry:     o.ShouldRetry,
 
 		DialTimeout:        o.DialTimeout,
 		ReadTimeout:        o.ReadTimeout,
@@ -121,6 +123,7 @@ func (o *UniversalOptions) Failover() *FailoverOptions {
 		MaxRetries:      o.MaxRetries,
 		MinRetryBackoff: o.MinRetryBackoff,
 		MaxRetryBackoff: o.MaxRetryBackoff,
+		ShouldRetry:     o.ShouldRetry,
 
 		DialTimeout:  o.DialTimeout,
 		ReadTimeout:  o.ReadTimeout,
@@ -157,6 +160,7 @@ func (o *UniversalOptions) Simple() *Options {
 		MaxRetries:      o.MaxRetries,
 		MinRetryBackoff: o.MinRetryBackoff,
 		MaxRetryBackoff: o.MaxRetryBackoff,
+		ShouldRetry:     o.ShouldRetry,
 
 		DialTimeout:  o.DialTimeout,
 		ReadTimeout:  o.ReadTimeout,
