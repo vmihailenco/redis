@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9/internal"
+	"github.com/redis/go-redis/v9/internal/hashtag"
 )
 
 // KeepTTL is a Redis KEEPTTL option to keep existing TTL, it requires your redis-server version >= 6.0,
@@ -1353,6 +1354,9 @@ func (c cmdable) Scan(ctx context.Context, cursor uint64, match string, count in
 		args = append(args, "count", count)
 	}
 	cmd := NewScanCmd(ctx, c, args...)
+	if hashtag.Present(match) {
+		cmd.SetFirstKeyPos(3)
+	}
 	_ = c(ctx, cmd)
 	return cmd
 }
@@ -1369,6 +1373,9 @@ func (c cmdable) ScanType(ctx context.Context, cursor uint64, match string, coun
 		args = append(args, "type", keyType)
 	}
 	cmd := NewScanCmd(ctx, c, args...)
+	if hashtag.Present(match) {
+		cmd.SetFirstKeyPos(3)
+	}
 	_ = c(ctx, cmd)
 	return cmd
 }
@@ -1382,6 +1389,9 @@ func (c cmdable) SScan(ctx context.Context, key string, cursor uint64, match str
 		args = append(args, "count", count)
 	}
 	cmd := NewScanCmd(ctx, c, args...)
+	if hashtag.Present(match) {
+		cmd.SetFirstKeyPos(4)
+	}
 	_ = c(ctx, cmd)
 	return cmd
 }
@@ -1395,6 +1405,9 @@ func (c cmdable) HScan(ctx context.Context, key string, cursor uint64, match str
 		args = append(args, "count", count)
 	}
 	cmd := NewScanCmd(ctx, c, args...)
+	if hashtag.Present(match) {
+		cmd.SetFirstKeyPos(4)
+	}
 	_ = c(ctx, cmd)
 	return cmd
 }
@@ -1408,6 +1421,9 @@ func (c cmdable) ZScan(ctx context.Context, key string, cursor uint64, match str
 		args = append(args, "count", count)
 	}
 	cmd := NewScanCmd(ctx, c, args...)
+	if hashtag.Present(match) {
+		cmd.SetFirstKeyPos(4)
+	}
 	_ = c(ctx, cmd)
 	return cmd
 }
