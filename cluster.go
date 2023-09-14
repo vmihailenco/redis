@@ -1294,7 +1294,19 @@ func (c *ClusterClient) processPipelineNode(
 		defer func() {
 			node.Client.releaseConn(ctx, cn, processErr)
 		}()
-		processErr = c.processPipelineNodeConn(ctx, node, cn, cmds, failedCmds)
+
+		errCh := make(chan error, 1)
+
+		go func() {
+			errCh <- c.processPipelineNodeConn(ctx, node, cn, cmds, failedCmds)
+		}()
+
+		select {
+		case processErr = <-errCh:
+		case <-ctx.Done():
+			_ = cn.Close()
+			processErr = ctx.Err()
+		}
 
 		return processErr
 	})
@@ -1475,7 +1487,19 @@ func (c *ClusterClient) processTxPipelineNode(
 		defer func() {
 			node.Client.releaseConn(ctx, cn, processErr)
 		}()
-		processErr = c.processTxPipelineNodeConn(ctx, node, cn, cmds, failedCmds)
+
+		errCh := make(chan error, 1)
+
+		go func() {
+			errCh <- c.processTxPipelineNodeConn(ctx, node, cn, cmds, failedCmds)
+		}()
+
+		select {
+		case processErr = <-errCh:
+		case <-ctx.Done():
+			_ = cn.Close()
+			processErr = ctx.Err()
+		}
 
 		return processErr
 	})
