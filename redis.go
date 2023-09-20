@@ -354,20 +354,26 @@ func (c *baseClient) releaseConn(ctx context.Context, cn *pool.Conn, err error) 
 
 func (c *baseClient) withConn(
 	ctx context.Context, fn func(context.Context, *pool.Conn) error,
-) error {
+) (retErr error) {
 	cn, err := c.getConn(ctx)
 	if err != nil {
 		return err
 	}
 
-	var fnErr error
+	if retErr = cn.WatchCancel(c.context(ctx)); retErr != nil {
+		return retErr
+	}
+
 	defer func() {
-		c.releaseConn(ctx, cn, fnErr)
+		if err = cn.WatchFinish(); err != nil {
+			retErr = err
+		}
+		c.releaseConn(ctx, cn, retErr)
 	}()
 
-	fnErr = fn(ctx, cn)
+	retErr = fn(ctx, cn)
 
-	return fnErr
+	return retErr
 }
 
 func (c *baseClient) dial(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -398,14 +404,14 @@ func (c *baseClient) _process(ctx context.Context, cmd Cmder, attempt int) (bool
 
 	retryTimeout := uint32(0)
 	if err := c.withConn(ctx, func(ctx context.Context, cn *pool.Conn) error {
-		if err := cn.WithWriter(c.context(ctx), c.opt.WriteTimeout, func(wr *proto.Writer) error {
+		if err := cn.WithWriter(ctx, c.opt.WriteTimeout, func(wr *proto.Writer) error {
 			return writeCmd(wr, cmd)
 		}); err != nil {
 			atomic.StoreUint32(&retryTimeout, 1)
 			return err
 		}
 
-		if err := cn.WithReader(c.context(ctx), c.cmdTimeout(cmd), cmd.readReply); err != nil {
+		if err := cn.WithReader(ctx, c.cmdTimeout(cmd), cmd.readReply); err != nil {
 			if cmd.readTimeout() == nil {
 				atomic.StoreUint32(&retryTimeout, 1)
 			} else {
@@ -504,14 +510,14 @@ func (c *baseClient) generalProcessPipeline(
 func (c *baseClient) pipelineProcessCmds(
 	ctx context.Context, cn *pool.Conn, cmds []Cmder,
 ) (bool, error) {
-	if err := cn.WithWriter(c.context(ctx), c.opt.WriteTimeout, func(wr *proto.Writer) error {
+	if err := cn.WithWriter(ctx, c.opt.WriteTimeout, func(wr *proto.Writer) error {
 		return writeCmds(wr, cmds)
 	}); err != nil {
 		setCmdsErr(cmds, err)
 		return true, err
 	}
 
-	if err := cn.WithReader(c.context(ctx), c.opt.ReadTimeout, func(rd *proto.Reader) error {
+	if err := cn.WithReader(ctx, c.opt.ReadTimeout, func(rd *proto.Reader) error {
 		return pipelineReadCmds(rd, cmds)
 	}); err != nil {
 		return true, err
@@ -536,14 +542,14 @@ func pipelineReadCmds(rd *proto.Reader, cmds []Cmder) error {
 func (c *baseClient) txPipelineProcessCmds(
 	ctx context.Context, cn *pool.Conn, cmds []Cmder,
 ) (bool, error) {
-	if err := cn.WithWriter(c.context(ctx), c.opt.WriteTimeout, func(wr *proto.Writer) error {
+	if err := cn.WithWriter(ctx, c.opt.WriteTimeout, func(wr *proto.Writer) error {
 		return writeCmds(wr, cmds)
 	}); err != nil {
 		setCmdsErr(cmds, err)
 		return true, err
 	}
 
-	if err := cn.WithReader(c.context(ctx), c.opt.ReadTimeout, func(rd *proto.Reader) error {
+	if err := cn.WithReader(ctx, c.opt.ReadTimeout, func(rd *proto.Reader) error {
 		statusCmd := cmds[0].(*StatusCmd)
 		// Trim multi and exec.
 		trimmedCmds := cmds[1 : len(cmds)-1]
