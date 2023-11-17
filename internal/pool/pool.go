@@ -91,7 +91,8 @@ type ConnPool struct {
 	poolSize     int
 	idleConnsLen int
 
-	stats Stats
+	stats          Stats
+	waitDurationNs atomic.Int64
 
 	_closed uint32 // atomic
 }
@@ -318,7 +319,7 @@ func (p *ConnPool) waitTurn(ctx context.Context) error {
 		timers.Put(timer)
 		return ctx.Err()
 	case p.queue <- struct{}{}:
-		atomic.AddInt64(&p.stats.WaitDurationNs, time.Since(start).Nanoseconds())
+		p.waitDurationNs.Add(time.Since(start).Nanoseconds())
 		atomic.AddUint32(&p.stats.WaitCount, 1)
 		if !timer.Stop() {
 			<-timer.C
@@ -450,7 +451,7 @@ func (p *ConnPool) Stats() *Stats {
 		Misses:         atomic.LoadUint32(&p.stats.Misses),
 		Timeouts:       atomic.LoadUint32(&p.stats.Timeouts),
 		WaitCount:      atomic.LoadUint32(&p.stats.WaitCount),
-		WaitDurationNs: atomic.LoadInt64(&p.stats.WaitDurationNs),
+		WaitDurationNs: p.waitDurationNs.Load(),
 
 		TotalConns: uint32(p.Len()),
 		IdleConns:  uint32(p.IdleLen()),
