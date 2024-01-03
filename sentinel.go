@@ -297,6 +297,10 @@ func NewSentinelClient(opt *Options) *SentinelClient {
 	})
 	c.connPool = newConnPool(opt, c.dialHook)
 
+	for _, hook := range opt.Hooks {
+		c.AddHook(hook)
+	}
+
 	return c
 }
 
