@@ -291,6 +291,17 @@ var _ = Describe("Commands", func() {
 				}()
 				pipe.ClientSetInfo(ctx, libInfo)
 			}).To(Panic())
+			// Test setting the default options for libName, libName suffix and libVer
+			clientInfo := client.ClientInfo(ctx).Val()
+			Expect(clientInfo.LibName).To(ContainSubstring("go-redis(go-redis,"))
+			// Test setting the libName suffix in options
+			opt := redisOptions()
+			opt.IdentitySuffix = "suffix"
+			client2 := redis.NewClient(opt)
+			defer client2.Close()
+			clientInfo = client2.ClientInfo(ctx).Val()
+			Expect(clientInfo.LibName).To(ContainSubstring("go-redis(suffix,"))
+
 		})
 
 		It("should ConfigGet", func() {
@@ -3722,28 +3733,28 @@ var _ = Describe("Commands", func() {
 		It("should ZAdd bytes", func() {
 			added, err := client.ZAdd(ctx, "zset", redis.Z{
 				Score:  1,
-				Member: "one",
+				Member: []byte("one"),
 			}).Result()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(added).To(Equal(int64(1)))
 
 			added, err = client.ZAdd(ctx, "zset", redis.Z{
 				Score:  1,
-				Member: "uno",
+				Member: []byte("uno"),
 			}).Result()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(added).To(Equal(int64(1)))
 
 			added, err = client.ZAdd(ctx, "zset", redis.Z{
 				Score:  2,
-				Member: "two",
+				Member: []byte("two"),
 			}).Result()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(added).To(Equal(int64(1)))
 
 			added, err = client.ZAdd(ctx, "zset", redis.Z{
 				Score:  3,
-				Member: "two",
+				Member: []byte("two"),
 			}).Result()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(added).To(Equal(int64(0)))
