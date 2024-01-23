@@ -45,10 +45,10 @@ type UniversalOptions struct {
 	PoolFIFO bool
 
 	PoolSize        int
+	PoolSizeStrict  bool
 	PoolTimeout     time.Duration
 	MinIdleConns    int
 	MaxIdleConns    int
-	MaxActiveConns  int
 	ConnMaxIdleTime time.Duration
 	ConnMaxLifetime time.Duration
 
@@ -103,10 +103,10 @@ func (o *UniversalOptions) Cluster() *ClusterOptions {
 		PoolFIFO: o.PoolFIFO,
 
 		PoolSize:        o.PoolSize,
+		PoolSizeStrict:  o.PoolSizeStrict,
 		PoolTimeout:     o.PoolTimeout,
 		MinIdleConns:    o.MinIdleConns,
 		MaxIdleConns:    o.MaxIdleConns,
-		MaxActiveConns:  o.MaxActiveConns,
 		ConnMaxIdleTime: o.ConnMaxIdleTime,
 		ConnMaxLifetime: o.ConnMaxLifetime,
 
@@ -149,10 +149,10 @@ func (o *UniversalOptions) Failover() *FailoverOptions {
 
 		PoolFIFO:        o.PoolFIFO,
 		PoolSize:        o.PoolSize,
+		PoolSizeStrict:  o.PoolSizeStrict,
 		PoolTimeout:     o.PoolTimeout,
 		MinIdleConns:    o.MinIdleConns,
 		MaxIdleConns:    o.MaxIdleConns,
-		MaxActiveConns:  o.MaxActiveConns,
 		ConnMaxIdleTime: o.ConnMaxIdleTime,
 		ConnMaxLifetime: o.ConnMaxLifetime,
 
@@ -192,10 +192,10 @@ func (o *UniversalOptions) Simple() *Options {
 
 		PoolFIFO:        o.PoolFIFO,
 		PoolSize:        o.PoolSize,
+		PoolSizeStrict:  o.PoolSizeStrict,
 		PoolTimeout:     o.PoolTimeout,
 		MinIdleConns:    o.MinIdleConns,
 		MaxIdleConns:    o.MaxIdleConns,
-		MaxActiveConns:  o.MaxActiveConns,
 		ConnMaxIdleTime: o.ConnMaxIdleTime,
 		ConnMaxLifetime: o.ConnMaxLifetime,
 

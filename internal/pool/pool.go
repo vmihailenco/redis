@@ -62,10 +62,10 @@ type Options struct {
 
 	PoolFIFO        bool
 	PoolSize        int
+	PoolSizeStrict  bool
 	PoolTimeout     time.Duration
 	MinIdleConns    int
 	MaxIdleConns    int
-	MaxActiveConns  int
 	ConnMaxIdleTime time.Duration
 	ConnMaxLifetime time.Duration
 }
@@ -164,13 +164,12 @@ func (p *ConnPool) NewConn(ctx context.Context) (*Conn, error) {
 }
 
 func (p *ConnPool) newConn(ctx context.Context, pooled bool) (*Conn, error) {
-	if p.closed() {
-		return nil, ErrClosed
-	}
-
-	if p.cfg.MaxActiveConns > 0 && p.poolSize >= p.cfg.MaxActiveConns {
+	p.connsMu.Lock()
+	if p.cfg.PoolSizeStrict && len(p.conns) >= p.cfg.PoolSize {
+		p.connsMu.Unlock()
 		return nil, ErrPoolExhausted
 	}
+	p.connsMu.Unlock()
 
 	cn, err := p.dialConn(ctx, pooled)
 	if err != nil {
@@ -179,6 +178,12 @@ func (p *ConnPool) newConn(ctx context.Context, pooled bool) (*Conn, error) {
 
 	p.connsMu.Lock()
 	defer p.connsMu.Unlock()
+
+	// It is not allowed to add new connections to the closed connection pool.
+	if p.closed() {
+		_ = cn.Close()
+		return nil, ErrClosed
+	}
 
 	p.conns = append(p.conns, cn)
 	if pooled {
