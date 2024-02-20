@@ -80,8 +80,8 @@ type FailoverOptions struct {
 
 	TLSConfig *tls.Config
 
-	DisableIndentity bool
-	IdentitySuffix   string
+	DisableIdentity bool
+	IdentitySuffix  string
 }
 
 func (opt *FailoverOptions) clientOptions() *Options {
@@ -117,8 +117,8 @@ func (opt *FailoverOptions) clientOptions() *Options {
 
 		TLSConfig: opt.TLSConfig,
 
-		DisableIndentity: opt.DisableIndentity,
-		IdentitySuffix:   opt.IdentitySuffix,
+		DisableIdentity: opt.DisableIdentity,
+		IdentitySuffix:  opt.IdentitySuffix,
 	}
 }
 
@@ -153,6 +153,9 @@ func (opt *FailoverOptions) sentinelOptions(addr string) *Options {
 		ConnMaxLifetime: opt.ConnMaxLifetime,
 
 		TLSConfig: opt.TLSConfig,
+
+		DisableIdentity: opt.DisableIdentity,
+		IdentitySuffix:  opt.IdentitySuffix,
 	}
 }
 
@@ -190,6 +193,9 @@ func (opt *FailoverOptions) clusterOptions() *ClusterOptions {
 		ConnMaxLifetime: opt.ConnMaxLifetime,
 
 		TLSConfig: opt.TLSConfig,
+
+		DisableIdentity: opt.DisableIdentity,
+		IdentitySuffix:  opt.IdentitySuffix,
 	}
 }
 
