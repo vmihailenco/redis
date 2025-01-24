@@ -160,30 +160,30 @@ func startCluster(ctx context.Context, scenario *clusterScenario) error {
 		End:   4999,
 		Nodes: []redis.ClusterNode{{
 			ID:   "",
-			Addr: "127.0.0.1:8220",
+			Addr: "127.0.0.1:16379",
 		}, {
 			ID:   "",
-			Addr: "127.0.0.1:8223",
+			Addr: "127.0.0.1:16382",
 		}},
 	}, {
 		Start: 5000,
 		End:   9999,
 		Nodes: []redis.ClusterNode{{
 			ID:   "",
-			Addr: "127.0.0.1:8221",
+			Addr: "127.0.0.1:16380",
 		}, {
 			ID:   "",
-			Addr: "127.0.0.1:8224",
+			Addr: "127.0.0.1:16383",
 		}},
 	}, {
 		Start: 10000,
 		End:   16383,
 		Nodes: []redis.ClusterNode{{
 			ID:   "",
-			Addr: "127.0.0.1:8222",
+			Addr: "127.0.0.1:16381",
 		}, {
 			ID:   "",
-			Addr: "127.0.0.1:8225",
+			Addr: "127.0.0.1:16384",
 		}},
 	}}
 	for _, client := range scenario.clients {

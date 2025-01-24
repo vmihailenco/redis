@@ -28,7 +28,7 @@ const (
 )
 
 const (
-	sentinelName       = "mymaster"
+	sentinelName       = "go-redis-test"
 	sentinelMasterPort = "9123"
 	sentinelSlave1Port = "9124"
 	sentinelSlave2Port = "9125"
@@ -59,7 +59,7 @@ var (
 )
 
 var cluster = &clusterScenario{
-	ports:     []string{"8220", "8221", "8222", "8223", "8224", "8225"},
+	ports:     []string{"16379", "16380", "16381", "16382", "16383", "16384"},
 	nodeIDs:   make([]string, 6),
 	processes: make(map[string]*redisProcess, 6),
 	clients:   make(map[string]*redis.Client, 6),
