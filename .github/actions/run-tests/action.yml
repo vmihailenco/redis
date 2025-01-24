@@ -47,6 +47,7 @@ runs:
       shell: bash
     - name: Set up Docker Compose environment with redis ${{ inputs.redis-version }}
       run: docker compose --profile all up -d
+      shell: bash
     - name: Run tests
       env:
         USE_CONTAINERIZED_REDIS: "true"
@@ -59,3 +60,4 @@ runs:
         --ginkgo.skip-file="pubsub_test.go" \
         --ginkgo.skip-file="gears_commands_test.go" \
         --ginkgo.label-filter='!NonRedisEnterprise'
+      shell: bash
