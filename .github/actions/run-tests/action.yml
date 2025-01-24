@@ -18,7 +18,6 @@ runs:
     - name: Setup Test environment
       env:
         REDIS_VERSION: ${{ inputs.redis-version }}
-        REDIS_IMAGE: "redis:${{ inputs.redis-version }}"
         CLIENT_LIBS_TEST_IMAGE: "redislabs/client-libs-test:${{ inputs.redis-version }}"
       run: |
         set -e
@@ -37,7 +36,8 @@ runs:
         )
         
         if [[ -v redis_version_mapping[$REDIS_VERSION] ]]; then
-          export CLIENT_LIBS_TEST_IMAGE="redislabs/client-libs-test:${redis_version_mapping[$REDIS_VERSION]}"
+          echo "REDIS_IMAGE=redis:${{ inputs.redis-version }}" >> $GITHUB_ENV
+          echo "CLIENT_LIBS_TEST_IMAGE=redislabs/client-libs-test:${redis_version_mapping[$REDIS_VERSION]}" >> $GITHUB_ENV
           echo "REDIS_MOD_URL=redis://127.0.0.1:6479/0" >> $GITHUB_ENV
         else
           echo "Version not found in the mapping."
