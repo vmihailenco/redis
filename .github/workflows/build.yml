@@ -50,41 +50,22 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          client-libs-image-version:
+          redis-version:
             - "8.0-M03" # 8.0 milestone 3
-            - "rs-7.4.0-v2" # redis stack 7.4
-            - "rs-7.2.0-v14" # redis stack 7.2
-            - "rs-6.2.6-v18" # redis stack 6.2
+            - "7.4.2" # should use redis stack 7.4
+            - "7.2.7" # should redis stack 7.2
           go-version:
-            - "1.21.x"
             - "1.22.x"
             - "1.23.x"
 
     steps:
-      - name: Set up ${{ matrix.go-version }}
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ matrix.go-version }}
 
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      # Set up Docker Compose environment
-      - name: Set up Docker Compose environment with standalone ${{ matrix.client-libs-image-version }}
-        env:
-          REDIS_CLT_IMAGE_VERSION: ${{ matrix.client-libs-image-version }}
-        run: |
-          docker compose --profile all up -d
-      
+
       - name: Run tests
-        env:
-          USE_CONTAINERIZED_REDIS: "true"
-          RE_CLUSTER: "true"
-        run: |
-          go test \
-          --ginkgo.skip-file="ring_test.go" \
-          --ginkgo.skip-file="sentinel_test.go" \
-          --ginkgo.skip-file="osscluster_test.go" \
-          --ginkgo.skip-file="pubsub_test.go" \
-          --ginkgo.skip-file="gears_commands_test.go" \
-          --ginkgo.label-filter='!NonRedisEnterprise'
+        uses: ./.github/actions/run-tests
+        with:
+          go-version: ${{matrix.go-version}}
+          redis-version: ${{ matrix.redis-version }}
+      
