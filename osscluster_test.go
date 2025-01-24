@@ -160,30 +160,30 @@ func startCluster(ctx context.Context, scenario *clusterScenario) error {
 		End:   4999,
 		Nodes: []redis.ClusterNode{{
 			ID:   "",
-			Addr: "127.0.0.1:8220",
+			Addr: "127.0.0.1:16379",
 		}, {
 			ID:   "",
-			Addr: "127.0.0.1:8223",
+			Addr: "127.0.0.1:16382",
 		}},
 	}, {
 		Start: 5000,
 		End:   9999,
 		Nodes: []redis.ClusterNode{{
 			ID:   "",
-			Addr: "127.0.0.1:8221",
+			Addr: "127.0.0.1:16380",
 		}, {
 			ID:   "",
-			Addr: "127.0.0.1:8224",
+			Addr: "127.0.0.1:16383",
 		}},
 	}, {
 		Start: 10000,
 		End:   16383,
 		Nodes: []redis.ClusterNode{{
 			ID:   "",
-			Addr: "127.0.0.1:8222",
+			Addr: "127.0.0.1:16381",
 		}, {
 			ID:   "",
-			Addr: "127.0.0.1:8225",
+			Addr: "127.0.0.1:16384",
 		}},
 	}}
 	for _, client := range scenario.clients {
@@ -730,30 +730,30 @@ var _ = Describe("ClusterClient", func() {
 				End:   4999,
 				Nodes: []redis.ClusterNode{{
 					ID:   "",
-					Addr: "127.0.0.1:8220",
+					Addr: "127.0.0.1:16379",
 				}, {
 					ID:   "",
-					Addr: "127.0.0.1:8223",
+					Addr: "127.0.0.1:16382",
 				}},
 			}, {
 				Start: 5000,
 				End:   9999,
 				Nodes: []redis.ClusterNode{{
 					ID:   "",
-					Addr: "127.0.0.1:8221",
+					Addr: "127.0.0.1:16380",
 				}, {
 					ID:   "",
-					Addr: "127.0.0.1:8224",
+					Addr: "127.0.0.1:16383",
 				}},
 			}, {
 				Start: 10000,
 				End:   16383,
 				Nodes: []redis.ClusterNode{{
 					ID:   "",
-					Addr: "127.0.0.1:8222",
+					Addr: "127.0.0.1:16381",
 				}, {
 					ID:   "",
-					Addr: "127.0.0.1:8225",
+					Addr: "127.0.0.1:16384",
 				}},
 			}}
 			Expect(assertSlotsEqual(res, wanted)).NotTo(HaveOccurred())
@@ -1122,14 +1122,14 @@ var _ = Describe("ClusterClient", func() {
 			client, err := client.SlaveForKey(ctx, "test")
 			Expect(err).ToNot(HaveOccurred())
 			info := client.Info(ctx, "server")
-			Expect(info.Val()).Should(ContainSubstring("tcp_port:8224"))
+			Expect(info.Val()).Should(ContainSubstring("tcp_port:16383"))
 		})
 
 		It("should return correct master for key", func() {
 			client, err := client.MasterForKey(ctx, "test")
 			Expect(err).ToNot(HaveOccurred())
 			info := client.Info(ctx, "server")
-			Expect(info.Val()).Should(ContainSubstring("tcp_port:8221"))
+			Expect(info.Val()).Should(ContainSubstring("tcp_port:16380"))
 		})
 
 		assertClusterClient()
@@ -1286,25 +1286,25 @@ var _ = Describe("ClusterClient", func() {
 					Start: 0,
 					End:   4999,
 					Nodes: []redis.ClusterNode{{
-						Addr: ":8220",
+						Addr: ":16379",
 					}, {
-						Addr: ":8223",
+						Addr: ":16382",
 					}},
 				}, {
 					Start: 5000,
 					End:   9999,
 					Nodes: []redis.ClusterNode{{
-						Addr: ":8221",
+						Addr: ":16380",
 					}, {
-						Addr: ":8224",
+						Addr: ":16383",
 					}},
 				}, {
 					Start: 10000,
 					End:   16383,
 					Nodes: []redis.ClusterNode{{
-						Addr: ":8222",
+						Addr: ":16381",
 					}, {
-						Addr: ":8225",
+						Addr: ":16384",
 					}},
 				}}
 				return slots, nil
