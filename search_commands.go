@@ -583,6 +583,8 @@ func FTAggregateQuery(query string, options *FTAggregateOptions) AggregateQuery 
 		}
 		if options.DialectVersion > 0 {
 			queryArgs = append(queryArgs, "DIALECT", options.DialectVersion)
+		} else {
+			queryArgs = append(queryArgs, "DIALECT", 2)
 		}
 	}
 	return queryArgs
@@ -774,6 +776,8 @@ func (c cmdable) FTAggregateWithArgs(ctx context.Context, index string, query st
 		}
 		if options.DialectVersion > 0 {
 			args = append(args, "DIALECT", options.DialectVersion)
+		} else {
+			args = append(args, "DIALECT", 2)
 		}
 	}
 
@@ -1147,6 +1151,8 @@ func (c cmdable) FTExplainWithArgs(ctx context.Context, index string, query stri
 	args := []interface{}{"FT.EXPLAIN", index, query}
 	if options.Dialect != "" {
 		args = append(args, "DIALECT", options.Dialect)
+	} else {
+		args = append(args, "DIALECT", 2)
 	}
 	cmd := NewStringCmd(ctx, args...)
 	_ = c(ctx, cmd)
@@ -1444,6 +1450,8 @@ func (c cmdable) FTSpellCheckWithArgs(ctx context.Context, index string, query s
 		}
 		if options.Dialect > 0 {
 			args = append(args, "DIALECT", options.Dialect)
+		} else {
+			args = append(args, "DIALECT", 2)
 		}
 	}
 	cmd := newFTSpellCheckCmd(ctx, args...)
@@ -1808,6 +1816,8 @@ func FTSearchQuery(query string, options *FTSearchOptions) SearchQuery {
 		}
 		if options.DialectVersion > 0 {
 			queryArgs = append(queryArgs, "DIALECT", options.DialectVersion)
+		} else {
+			queryArgs = append(queryArgs, "DIALECT", 2)
 		}
 	}
 	return queryArgs
@@ -1922,6 +1932,8 @@ func (c cmdable) FTSearchWithArgs(ctx context.Context, index string, query strin
 		}
 		if options.DialectVersion > 0 {
 			args = append(args, "DIALECT", options.DialectVersion)
+		} else {
+			args = append(args, "DIALECT", 2)
 		}
 	}
 	cmd := newFTSearchCmd(ctx, options, args...)
