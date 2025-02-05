@@ -231,7 +231,6 @@ type FTAggregateApply struct {
 
 type FTAggregateLoad struct {
 	Field string
-	As    string
 }
 
 type FTAggregateWithCursor struct {
@@ -500,9 +499,6 @@ func FTAggregateQuery(query string, options *FTAggregateOptions) AggregateQuery 
 			queryArgs = append(queryArgs, "LOAD", len(options.Load))
 			for _, load := range options.Load {
 				queryArgs = append(queryArgs, load.Field)
-				if load.As != "" {
-					queryArgs = append(queryArgs, "AS", load.As)
-				}
 			}
 		}
 		if options.Timeout > 0 {
@@ -660,8 +656,7 @@ func (cmd *AggregateCmd) String() string {
 func (cmd *AggregateCmd) readReply(rd *proto.Reader) (err error) {
 	data, err := rd.ReadSlice()
 	if err != nil {
-		cmd.err = err
-		return nil
+		return err
 	}
 	cmd.val, err = ProcessAggregateResult(data)
 	if err != nil {
@@ -691,9 +686,6 @@ func (c cmdable) FTAggregateWithArgs(ctx context.Context, index string, query st
 			args = append(args, "LOAD", len(options.Load))
 			for _, load := range options.Load {
 				args = append(args, load.Field)
-				if load.As != "" {
-					args = append(args, "AS", load.As)
-				}
 			}
 		}
 		if options.Timeout > 0 {
@@ -1492,8 +1484,7 @@ func (cmd *FTSpellCheckCmd) RawResult() (interface{}, error) {
 func (cmd *FTSpellCheckCmd) readReply(rd *proto.Reader) (err error) {
 	data, err := rd.ReadSlice()
 	if err != nil {
-		cmd.err = err
-		return nil
+		return err
 	}
 	cmd.val, err = parseFTSpellCheck(data)
 	if err != nil {
@@ -1681,8 +1672,7 @@ func (cmd *FTSearchCmd) RawResult() (interface{}, error) {
 func (cmd *FTSearchCmd) readReply(rd *proto.Reader) (err error) {
 	data, err := rd.ReadSlice()
 	if err != nil {
-		cmd.err = err
-		return nil
+		return err
 	}
 	cmd.val, err = parseFTSearch(data, cmd.options.NoContent, cmd.options.WithScores, cmd.options.WithPayloads, cmd.options.WithSortKeys)
 	if err != nil {
@@ -1908,7 +1898,7 @@ func (c cmdable) FTSearchWithArgs(ctx context.Context, index string, query strin
 				}
 			}
 			if options.SortByWithCount {
-				args = append(args, "WITHCOUT")
+				args = append(args, "WITHCOUNT")
 			}
 		}
 		if options.LimitOffset >= 0 && options.Limit > 0 {
