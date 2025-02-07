@@ -38,4 +38,13 @@ var _ = Describe("UniversalClient", func() {
 		})
 		Expect(client.Ping(ctx).Err()).NotTo(HaveOccurred())
 	})
+
+	It("should connect to clusters if IsClusterMode is set even if only a single address is provided", Label("NonRedisEnterprise"), func() {
+		client = redis.NewUniversalClient(&redis.UniversalOptions{
+			Addrs:         []string{cluster.addrs()[0]},
+			IsClusterMode: true,
+		})
+		_, ok := client.(*redis.ClusterClient)
+		Expect(ok).To(BeTrue(), "expected a ClusterClient")
+	})
 })
