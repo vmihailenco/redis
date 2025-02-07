@@ -127,8 +127,10 @@ var _ = Describe("RediSearch commands Resp 2", Label("search"), func() {
 
 		res3, err := client.FTSearchWithArgs(ctx, "num", "foo", &redis.FTSearchOptions{NoContent: true, SortBy: []redis.FTSearchSortBy{sortBy2}, SortByWithCount: true}).Result()
 		Expect(err).NotTo(HaveOccurred())
-		Expect(res3.Total).To(BeEquivalentTo(int64(0)))
-
+		Expect(res3.Total).To(BeEquivalentTo(int64(3)))
+		Expect(res2.Docs[2].ID).To(BeEquivalentTo("doc1"))
+		Expect(res2.Docs[1].ID).To(BeEquivalentTo("doc2"))
+		Expect(res2.Docs[0].ID).To(BeEquivalentTo("doc3"))
 	})
 
 	It("should FTCreate and FTSearch example", Label("search", "ftcreate", "ftsearch"), func() {
@@ -264,6 +266,8 @@ var _ = Describe("RediSearch commands Resp 2", Label("search"), func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(res1.Total).To(BeEquivalentTo(int64(1)))
 
+		_, err = client.FTSearch(ctx, "idx_not_exist", "only in the body").Result()
+		Expect(err).To(HaveOccurred())
 	})
 
 	It("should FTSpellCheck", Label("search", "ftcreate", "ftsearch", "ftspellcheck"), func() {
@@ -638,6 +642,16 @@ var _ = Describe("RediSearch commands Resp 2", Label("search"), func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(res.Rows[0].Fields["t1"]).To(BeEquivalentTo("hello"))
 		Expect(res.Rows[0].Fields["t2"]).To(BeEquivalentTo("world"))
+
+		_, err = client.FTAggregateWithArgs(ctx, "idx_not_exist", "*", &redis.FTAggregateOptions{}).Result()
+		if !RECluster {
+			Expect(err).To(HaveOccurred())
+		} else {
+			//FIXME:This is a known issue, which is fixed in RedisSearch(2.8.10), but the Redis Enterprise(7.4.2) packaged RediSearch 2.8.9
+			//https://github.com/RediSearch/RediSearch/issues/4272
+			//https://redis.io/docs/latest/operate/rs/release-notes/rs-7-4-2-releases/rs-7-4-2-54/
+			Expect(err).NotTo(HaveOccurred())
+		}
 	})
 
 	It("should FTAggregate apply", Label("search", "ftaggregate"), func() {
@@ -1165,6 +1179,7 @@ var _ = Describe("RediSearch commands Resp 2", Label("search"), func() {
 		val, err = client.FTCreate(ctx, "idx_hash", ftCreateOptions, schema...).Result()
 		Expect(err).NotTo(HaveOccurred())
 		Expect(val).To(Equal("OK"))
+		WaitForIndexing(client, "idx_hash")
 
 		ftSearchOptions := &redis.FTSearchOptions{
 			DialectVersion: 4,
